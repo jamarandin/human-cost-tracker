@@ -1,0 +1,17 @@
+{
+  "name": "human-cost-tracker",
+  "version": "1.0.0",
+  "description": "Tracking the human cost of the U.S.–Iran conflict",
+  "private": true,
+  "scripts": {
+    "update": "node scripts/fetch-and-update.js",
+    "check": "node scripts/fetch-and-update.js --check-only",
+    "validate": "node scripts/fetch-and-update.js --validate",
+    "sync": "node -e \"const {execSync}=require('child_process');execSync('node scripts/fetch-and-update.js --check-only',{stdio:'inherit'})\""
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

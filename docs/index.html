@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Human Cost Tracker — U.S.–Iran War</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --panel: #f9fafb;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --red: #dc2626;
+      --red-light: #fee2e2;
+      --blue: #2563eb;
+      --blue-light: #eff6ff;
+      --amber: #d97706;
+      --amber-light: #fef3c7;
+      --gray: #9ca3af;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --panel: #1e293b;
+        --ink: #f1f5f9;
+        --muted: #cbd5e1;
+        --line: #334155;
+        --red-light: #7f1d1d;
+        --blue-light: #1e3a8a;
+        --amber-light: #78350f;
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+      font-size: 16px;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    section {
+      margin: 80px 0;
+      animation: fadeIn 0.8s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+    .hero h1 {
+      font-size: clamp(4rem, 12vw, 8rem);
+      margin: 0;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: var(--red);
+      font-weight: 700;
+    }
+    .hero-subtitle {
+      font-size: 1.5rem;
+      color: var(--muted);
+      margin-top: 1rem;
+      max-width: 600px;
+    }
+    .hero-context {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-top: 2rem;
+      max-width: 500px;
+      line-height: 1.8;
+    }
+    .scroll-hint {
+      position: absolute;
+      bottom: 40px;
+      animation: bounce 2s infinite;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+    h2 {
+      font-size: 2.5rem;
+      margin: 0 0 1.5rem 0;
+      color: var(--ink);
+      font-weight: 600;
+    }
+    h3 {
+      font-size: 1.3rem;
+      margin: 1.5rem 0 0.5rem 0;
+      color: var(--ink);
+      font-weight: 600;
+    }
+    .kicker {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.8rem;
+    }
+    p {
+      color: var(--muted);
+      line-height: 1.8;
+      margin: 0 0 1rem 0;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 1.5rem 0;
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin: 1.5rem 0;
+    }
+    .metric {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .metric-label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.8rem;
+    }
+    .metric-number {
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 700;
+      color: var(--red);
+      font-family: Georgia, serif;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+    .metric-source {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.8rem;
+    }
+    .dot-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(20px, 1fr));
+      gap: 4px;
+      margin: 2rem 0;
+      padding: 2rem;
+      background: var(--panel);
+      border-radius: 8px;
+      border: 1px solid var(--line);
+    }
+    .dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--red);
+      opacity: 0.8;
+      transition: all 0.2s;
+    }
+    .dot:hover {
+      opacity: 1;
+      transform: scale(1.5);
+      z-index: 10;
+    }
+    .dot.confirmed {
+      opacity: 0.5;
+    }
+    .dot.unconfirmed {
+      opacity: 0.25;
+    }
+    .dot.child {
+      background: var(--blue);
+    }
+    .tree-card {
+      background: var(--panel);
+      border-left: 4px solid var(--red);
+      border-radius: 0 8px 8px 0;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      margin-left: 0;
+    }
+    .tree-card.level-0 {
+      border-left-width: 8px;
+      border-left-color: var(--red);
+      background: var(--red-light);
+    }
+    .tree-card.level-1 {
+      margin-left: 2rem;
+      border-left-color: var(--red);
+      opacity: 0.9;
+    }
+    .tree-card.level-2 {
+      margin-left: 4rem;
+      border-left-color: var(--red);
+      opacity: 0.85;
+    }
+    .tree-label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    .tree-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--red);
+      font-family: Georgia, serif;
+      line-height: 1;
+      margin-bottom: 0.8rem;
+    }
+    .tree-card.level-2 .tree-number {
+      color: var(--red);
+      font-size: 2rem;
+    }
+    .tree-desc {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .animated-bar {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+    }
+    .bar-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 0.8rem;
+    }
+    .bar-container {
+      background: var(--line);
+      height: 40px;
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+    .bar-fill {
+      height: 100%;
+      background: var(--red);
+      width: 0;
+      animation: fillBar 1.5s ease-out forwards;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 12px;
+      color: white;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    @keyframes fillBar {
+      from { width: 0; }
+      to { width: var(--fill-width); }
+    }
+    .bar-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.6rem;
+    }
+    .timeline {
+      position: relative;
+      margin: 3rem 0;
+      padding: 2rem;
+      background: var(--panel);
+      border-radius: 8px;
+      border: 1px solid var(--line);
+    }
+    .timeline-line {
+      position: absolute;
+      left: 30px;
+      top: 80px;
+      bottom: 0;
+      width: 2px;
+      background: var(--line);
+    }
+    .timeline-item {
+      position: relative;
+      padding-left: 80px;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: slideIn 0.6s ease-out forwards;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .timeline-dot {
+      position: absolute;
+      left: 18px;
+      top: 2px;
+      width: 24px;
+      height: 24px;
+      background: var(--red);
+      border: 3px solid var(--bg);
+      border-radius: 50%;
+      z-index: 2;
+    }
+    .timeline-dot.child {
+      background: var(--blue);
+    }
+    .timeline-date {
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.3rem;
+    }
+    .timeline-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+    .timeline-desc {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .regional-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .regional-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+    .regional-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 1rem;
+    }
+    .regional-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.95rem;
+    }
+    .regional-stat:last-child {
+      border-bottom: none;
+    }
+    .regional-label {
+      color: var(--muted);
+    }
+    .regional-value {
+      font-weight: 600;
+      color: var(--red);
+      font-family: Georgia, serif;
+    }
+    .source-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .source-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+    .source-role {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    .source-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+    .source-date {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .source-desc {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .source-card a {
+      color: inherit;
+      text-decoration: none;
+      display: block;
+    }
+    .source-card a:hover .source-title {
+      text-decoration: underline;
+      color: var(--blue);
+    }
+    .methodology {
+      background: var(--blue-light);
+      border: 1px solid var(--blue);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      color: var(--ink);
+    }
+    .methodology p {
+      color: var(--ink);
+    }
+    .last-updated-bar {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: right;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1rem;
+    }
+    @media (max-width: 640px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+      .hero-subtitle {
+        font-size: 1.1rem;
+      }
+      h2 {
+        font-size: 1.8rem;
+      }
+      .tree-card.level-1 {
+        margin-left: 1rem;
+      }
+      .tree-card.level-2 {
+        margin-left: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+
+    <!-- Last-updated banner — populated by data-loader.js -->
+    <div class="last-updated-bar">
+      Data last updated: <span data-last-updated>2026-04-07</span>
+      &nbsp;·&nbsp; Day <span data-conflict-days>39</span> of conflict
+    </div>
+
+    <!-- =====================================================
+         HERO
+         data-metric="hero.children" → big red number
+         ===================================================== -->
+    <section class="hero">
+      <h1 data-metric="hero.children">244+</h1>
+      <p class="hero-subtitle">Children killed in the U.S.–Iran war</p>
+      <p class="hero-context">
+        That's the number we know about.
+      </p>
+      <p class="hero-context">
+        Since February 28, the U.S.–Iran war has killed thousands across Iran and Lebanon. But "thousands" is abstract. So we're breaking it down: 244+ confirmed children. 1,616 confirmed civilians. >1,900 total reported deaths.
+      </p>
+      <p class="hero-context">
+        What makes this tracker different: we show you all the numbers, explain what we're certain about and what's still being classified, and link to the sources so you can check.
+      </p>
+      <p class="scroll-hint">↓ Scroll to explore ↓</p>
+    </section>
+
+    <section>
+      <div class="kicker">The data</div>
+      <h2>How reported, confirmed, and verified differ</h2>
+      <p>
+        <strong>"Reported"</strong> means a credible source published the figure. <strong>"Confirmed"</strong> means a rights monitor verified who was killed and their status. If Reuters reports more than 1,900 deaths in Iran while HRANA confirms 1,616 civilian deaths, both are true—it means 284 deaths are still being classified.
+      </p>
+      <p>
+        Injuries (20,000+) vastly outnumber deaths (1,900). We show them at different scales so you can see both clearly.
+      </p>
+    </section>
+
+    <!-- =====================================================
+         METRIC GRID
+         data-metric="<key>"         → .metric-number text
+         data-metric-source="<key>"  → .metric-source text
+         ===================================================== -->
+    <section>
+      <div class="kicker">Conflict overview</div>
+      <h2>The total toll</h2>
+      <div class="metric-grid">
+
+        <div class="metric">
+          <div class="metric-label">Iran: total reported deaths</div>
+          <div class="metric-number" data-metric="iran.reportedDeaths">&gt;1,900</div>
+          <div class="metric-source" data-metric-source="iran.reportedDeaths">IFRC via Reuters · Apr 2</div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-label">Iran: reported injured</div>
+          <div class="metric-number" data-metric="iran.reportedInjured">20,000+</div>
+          <div class="metric-source" data-metric-source="iran.reportedInjured">IFRC via Reuters · Apr 2</div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-label">Lebanon: reported deaths</div>
+          <div class="metric-number" data-metric="lebanon.reportedDeaths">1,497</div>
+          <div class="metric-source" data-metric-source="lebanon.reportedDeaths">Reuters · Apr 6</div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-label">U.S.: military deaths</div>
+          <div class="metric-number" data-metric="us.militaryDeaths">13</div>
+          <div class="metric-source" data-metric-source="us.militaryDeaths">Reuters · Apr 6</div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-label">U.S.: military wounded</div>
+          <div class="metric-number" data-metric="us.militaryWounded">&gt;300</div>
+          <div class="metric-source" data-metric-source="us.militaryWounded">Reuters · Apr 6</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =====================================================
+         TREE CARDS
+         data-tree="<key>" on the .tree-card wrapper
+         Loader updates .tree-label, .tree-number, .tree-desc
+         ===================================================== -->
+    <section>
+      <div class="kicker">Iran: breaking down the numbers</div>
+      <h2>How reported, confirmed, and children relate</h2>
+      <p>
+        Not all deaths are equally confirmed. These cards show how figures nest inside one another. The 244+ children are counted within the 1,616 confirmed civilians, which are counted within the &gt;1,900 reported deaths. This structure prevents double-counting and shows the level of verification for each figure.
+      </p>
+
+      <div class="tree-card level-0" data-tree="iran.total">
+        <div class="tree-label">Iran: all reported deaths</div>
+        <div class="tree-number">&gt;1,900</div>
+        <div class="tree-desc">Broader humanitarian total reported by the International Federation of Red Cross and Red Crescent Societies. This includes all deaths reported across Iran.</div>
+      </div>
+
+      <div class="tree-card level-1" data-tree="iran.confirmedCivilian">
+        <div class="tree-label">Of which: confirmed civilian deaths</div>
+        <div class="tree-number">1,616</div>
+        <div class="tree-desc">Counted within the total reported deaths. Human rights monitor HRANA has verified these individuals as civilians killed in Iran. The difference (284 deaths) means their status is still being classified.</div>
+      </div>
+
+      <div class="tree-card level-2" data-tree="iran.children">
+        <div class="tree-label">Of which: children</div>
+        <div class="tree-number">244+</div>
+        <div class="tree-desc">Counted within the confirmed civilian deaths. HRANA identified these as children among the verified civilian casualties. This is the most specific and heavily verified figure on this page.</div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         ANIMATED BARS
+         data-bar="<key>" on the .bar-fill div
+         Loader sets --fill-width, updates span text & .bar-meta
+         ===================================================== -->
+    <section>
+      <div class="kicker">Visual breakdown</div>
+      <h2>Deaths and injuries by region</h2>
+      <p>Each bar shows the scale of reported deaths compared to reported injuries. Note the separate scales—injuries are shown at a larger range so the chart doesn't visually overwhelm deaths.</p>
+
+      <h3>Iran</h3>
+      <div class="animated-bar">
+        <div class="bar-label">Reported deaths</div>
+        <div class="bar-container">
+          <div class="bar-fill" style="--fill-width: 76%;" data-bar="iran.reportedDeaths"><span>&gt;1,900</span></div>
+        </div>
+        <div class="bar-meta">Scale: 0 to 2,500 deaths · IFRC via Reuters, Apr 2</div>
+      </div>
+
+      <div class="animated-bar">
+        <div class="bar-label">Reported injuries</div>
+        <div class="bar-container">
+          <div class="bar-fill" style="--fill-width: 80%; background: var(--amber); animation-delay: 0.2s;" data-bar="iran.reportedInjured"><span>20,000+</span></div>
+        </div>
+        <div class="bar-meta">Scale: 0 to 25,000 injuries · IFRC via Reuters, Apr 2</div>
+      </div>
+
+      <h3>Lebanon</h3>
+      <div class="animated-bar">
+        <div class="bar-label">Reported deaths</div>
+        <div class="bar-container">
+          <div class="bar-fill" style="--fill-width: 60%;" data-bar="lebanon.reportedDeaths"><span>1,497</span></div>
+        </div>
+        <div class="bar-meta">Scale: 0 to 2,500 deaths · Reuters, Apr 6</div>
+      </div>
+
+      <h3>United States</h3>
+      <div class="animated-bar">
+        <div class="bar-label">Military deaths</div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="bar-container" style="flex: 1;">
+            <div class="bar-fill" style="--fill-width: 0.5%;" data-bar="us.militaryDeaths"></div>
+          </div>
+          <span style="font-weight: 600; color: var(--red); min-width: 30px;" data-bar-label="us.militaryDeaths">13</span>
+        </div>
+        <div class="bar-meta">Scale: 0 to 2,500 deaths · Reuters, Apr 6</div>
+      </div>
+
+      <div class="animated-bar">
+        <div class="bar-label">Military wounded</div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="bar-container" style="flex: 1; background: var(--line);">
+            <div class="bar-fill" style="--fill-width: 1.2%; background: var(--amber); animation-delay: 0.2s;" data-bar="us.militaryWounded"></div>
+          </div>
+          <span style="font-weight: 600; color: var(--amber); min-width: 40px;" data-bar-label="us.militaryWounded">&gt;300</span>
+        </div>
+        <div class="bar-meta">Scale: 0 to 25,000 injuries · Reuters, Apr 6</div>
+      </div>
+    </section>
+
+    <section>
+      <div class="kicker">39 days</div>
+      <h2>From February 28 to April 7</h2>
+      <div class="timeline">
+        <div class="timeline-line"></div>
+
+        <div class="timeline-item" style="animation-delay: 0s;">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">February 28 · Day 1</div>
+          <div class="timeline-title">War begins</div>
+          <div class="timeline-desc">Reuters reports that the U.S. and Israel began military strikes on Iran, marking the official start of the conflict.</div>
+        </div>
+
+        <div class="timeline-item" style="animation-delay: 0.1s;">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">March 2 · Day 3</div>
+          <div class="timeline-title">Conflict expands</div>
+          <div class="timeline-desc">A new front opens in Lebanon, expanding the regional scope of the conflict beyond Iran.</div>
+        </div>
+
+        <div class="timeline-item" style="animation-delay: 0.2s;">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">April 2 · Day 34</div>
+          <div class="timeline-title">Casualty toll emerges</div>
+          <div class="timeline-desc">The International Federation of Red Cross and Red Crescent Societies, cited by Reuters, reports at least 1,900 killed and 20,000 injured in Iran.</div>
+        </div>
+
+        <div class="timeline-item" style="animation-delay: 0.3s;">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">April 7 · Day 39</div>
+          <div class="timeline-title">Child toll documented</div>
+          <div class="timeline-desc">HRANA's daily update adds new civilian and child casualty details, documenting at least 244 children among those killed in Iran.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         REGIONAL CARDS
+         data-metric="<key>" on .regional-value spans
+         ===================================================== -->
+    <section>
+      <div class="kicker">Regional overview</div>
+      <h2>Where the toll is highest</h2>
+      <div class="regional-grid">
+
+        <div class="regional-card">
+          <div class="regional-title">Iran</div>
+          <div class="regional-stat">
+            <span class="regional-label">Reported deaths</span>
+            <span class="regional-value" data-metric="iran.reportedDeaths">&gt;1,900</span>
+          </div>
+          <div class="regional-stat">
+            <span class="regional-label">Confirmed civilian</span>
+            <span class="regional-value" data-metric="iran.confirmedCivilian">1,616</span>
+          </div>
+          <div class="regional-stat">
+            <span class="regional-label">Children killed</span>
+            <span class="regional-value" data-metric="iran.children">244+</span>
+          </div>
+          <div class="regional-stat">
+            <span class="regional-label">Reported injured</span>
+            <span class="regional-value" data-metric="iran.reportedInjured">20,000+</span>
+          </div>
+        </div>
+
+        <div class="regional-card">
+          <div class="regional-title">Lebanon</div>
+          <div class="regional-stat">
+            <span class="regional-label">Reported deaths</span>
+            <span class="regional-value" data-metric="lebanon.reportedDeaths">1,497</span>
+          </div>
+          <div class="regional-stat">
+            <span class="regional-label">Children killed</span>
+            <span class="regional-value" data-metric="lebanon.children">129+</span>
+          </div>
+          <p style="font-size: 0.9rem; margin-top: 1rem; color: var(--muted);">Lebanon is experiencing secondary casualties linked to the wider conflict, including cross-border strikes and rocket fire, according to Reuters.</p>
+        </div>
+
+        <div class="regional-card">
+          <div class="regional-title">United States</div>
+          <div class="regional-stat">
+            <span class="regional-label">Military deaths</span>
+            <span class="regional-value" data-metric="us.militaryDeaths">13</span>
+          </div>
+          <div class="regional-stat">
+            <span class="regional-label">Military wounded</span>
+            <span class="regional-value" data-metric="us.militaryWounded">&gt;300</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =====================================================
+         SOURCE CARDS
+         data-source-id="<id>" on .source-card
+         Loader updates role, title, date, desc, link href
+         ===================================================== -->
+    <section>
+      <div class="kicker">Verify it yourself</div>
+      <h2>The sources and their methodologies</h2>
+      <p>
+        Reuters, HRANA, and official counts do not always match because they have different access, different methods, and sometimes count different things. "Reported" means a credible source has published the figure. "Confirmed" means a monitor or rights group has verified who was killed. If Reuters reports more than 1,900 killed in Iran while HRANA confirms 1,616 civilian deaths, that does not mean the difference is false. It means some deaths have not yet been fully classified.
+      </p>
+
+      <div class="source-grid">
+
+        <div class="source-card" data-source-id="reuters-roundup">
+          <div class="source-role">Reuters · news service</div>
+          <a href="https://www.reuters.com/world/middle-east/how-many-people-have-been-killed-us-israel-war-iran-2026-03-31/" target="_blank" rel="noopener noreferrer">
+            <div class="source-title">Casualty roundup</div>
+          </a>
+          <div class="source-date">Last updated April 6, 2026</div>
+          <div class="source-desc">Reuters consolidates reports from officials, humanitarian organizations, and monitors. Its figures can differ because it is aggregating multiple sources rather than counting casualties directly.</div>
+        </div>
+
+        <div class="source-card" data-source-id="ifrc-iran">
+          <div class="source-role">IFRC · humanitarian network</div>
+          <a href="https://www.ifrc.org/" target="_blank" rel="noopener noreferrer">
+            <div class="source-title">Iran medical needs update</div>
+          </a>
+          <div class="source-date">Published April 2, 2026</div>
+          <div class="source-desc">The International Federation of Red Cross and Red Crescent Societies reports broad humanitarian totals such as deaths and injuries. Those numbers may be higher than confirmed civilian counts because they are not limited to people whose status has been individually verified.</div>
+        </div>
+
+        <div class="source-card" data-source-id="hrana-day39">
+          <div class="source-role">HRANA · human rights monitor</div>
+          <a href="https://www.en-hrana.org/" target="_blank" rel="noopener noreferrer">
+            <div class="source-title">Day 39 daily update</div>
+          </a>
+          <div class="source-date">Published April 7, 2026</div>
+          <div class="source-desc">HRANA monitors casualties on the ground and classifies victims where possible. Its civilian and child figures can differ from broader totals because some deaths remain unclassified while identities are still being verified.</div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Data loader: fetches docs/data/*.json and populates data-* elements -->
+  <script src="assets/js/data-loader.js" defer></script>
+</body>
+</html>

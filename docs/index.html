@@ -49,6 +49,19 @@
       margin: 0 auto;
       padding: 0 20px;
     }
+    .timestamp-header {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      background: var(--bg);
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      z-index: 100;
+      backdrop-filter: blur(4px);
+    }
     section {
       margin: 80px 0;
       animation: fadeIn 0.8s ease-out;
@@ -428,6 +441,8 @@
   </style>
 </head>
 <body>
+  <div class="timestamp-header" data-timestamp-header>Data last updated: April 7, 2026 · Day 39 of conflict</div>
+
   <main class="container">
     <section class="hero">
       <h1>244+</h1>
@@ -684,7 +699,7 @@
     </section>
 
     <footer>
-      <p><span data-timestamp>Last updated: April 7, 2026</span></p>
+      <p><span data-timestamp>Last updated: April 7, 2026 · Day 39 of conflict</span></p>
     </footer>
   </main>
 

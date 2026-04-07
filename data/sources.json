@@ -1,0 +1,29 @@
+{
+  "lastUpdated": "2026-04-07",
+  "sources": [
+    {
+      "id": "reuters-roundup",
+      "role": "Reuters · news service",
+      "title": "Casualty roundup",
+      "url": "https://www.reuters.com/world/middle-east/how-many-people-have-been-killed-us-israel-war-iran-2026-03-31/",
+      "date": "April 6, 2026",
+      "description": "Reuters consolidates reports from officials, humanitarian organizations, and monitors. Its figures can differ because it is aggregating multiple sources rather than counting casualties directly."
+    },
+    {
+      "id": "ifrc-iran",
+      "role": "IFRC · humanitarian network",
+      "title": "Iran medical needs update",
+      "url": "https://www.ifrc.org/",
+      "date": "April 2, 2026",
+      "description": "The International Federation of Red Cross and Red Crescent Societies reports broad humanitarian totals such as deaths and injuries. Those numbers may be higher than confirmed civilian counts because they are not limited to people whose status has been individually verified."
+    },
+    {
+      "id": "hrana-day39",
+      "role": "HRANA · human rights monitor",
+      "title": "Day 39 daily update",
+      "url": "https://www.en-hrana.org/",
+      "date": "April 7, 2026",
+      "description": "HRANA monitors casualties on the ground and classifies victims where possible. Its civilian and child figures can differ from broader totals because some deaths remain unclassified while identities are still being verified."
+    }
+  ]
+}

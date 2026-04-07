@@ -1,0 +1,118 @@
+{
+  "lastUpdated": "2026-04-07",
+  "conflictStart": "2026-02-28",
+  "conflictDays": 39,
+  "metrics": {
+    "hero.children": {
+      "display": "244+",
+      "raw": 244,
+      "source": "HRANA",
+      "date": "Apr 7"
+    },
+    "iran.reportedDeaths": {
+      "display": ">1,900",
+      "raw": 1900,
+      "source": "IFRC via Reuters",
+      "date": "Apr 2"
+    },
+    "iran.reportedInjured": {
+      "display": "20,000+",
+      "raw": 20000,
+      "source": "IFRC via Reuters",
+      "date": "Apr 2"
+    },
+    "iran.confirmedCivilian": {
+      "display": "1,616",
+      "raw": 1616,
+      "source": "HRANA",
+      "date": "Apr 7"
+    },
+    "iran.children": {
+      "display": "244+",
+      "raw": 244,
+      "source": "HRANA",
+      "date": "Apr 7"
+    },
+    "lebanon.reportedDeaths": {
+      "display": "1,497",
+      "raw": 1497,
+      "source": "Reuters",
+      "date": "Apr 6"
+    },
+    "lebanon.children": {
+      "display": "129+",
+      "raw": 129,
+      "source": "Reuters",
+      "date": "Apr 6"
+    },
+    "us.militaryDeaths": {
+      "display": "13",
+      "raw": 13,
+      "source": "Reuters",
+      "date": "Apr 6"
+    },
+    "us.militaryWounded": {
+      "display": ">300",
+      "raw": 300,
+      "source": "Reuters",
+      "date": "Apr 6"
+    }
+  },
+  "bars": {
+    "iran.reportedDeaths": {
+      "fillPct": 76,
+      "display": ">1,900",
+      "meta": "Scale: 0 to 2,500 deaths · IFRC via Reuters, Apr 2",
+      "color": "red",
+      "scaleMax": 2500
+    },
+    "iran.reportedInjured": {
+      "fillPct": 80,
+      "display": "20,000+",
+      "meta": "Scale: 0 to 25,000 injuries · IFRC via Reuters, Apr 2",
+      "color": "amber",
+      "scaleMax": 25000
+    },
+    "lebanon.reportedDeaths": {
+      "fillPct": 60,
+      "display": "1,497",
+      "meta": "Scale: 0 to 2,500 deaths · Reuters, Apr 6",
+      "color": "red",
+      "scaleMax": 2500
+    },
+    "us.militaryDeaths": {
+      "fillPct": 0.5,
+      "display": "13",
+      "meta": "Scale: 0 to 2,500 deaths · Reuters, Apr 6",
+      "color": "red",
+      "scaleMax": 2500
+    },
+    "us.militaryWounded": {
+      "fillPct": 1.2,
+      "display": ">300",
+      "meta": "Scale: 0 to 25,000 injuries · Reuters, Apr 6",
+      "color": "amber",
+      "scaleMax": 25000
+    }
+  },
+  "tree": {
+    "iran.total": {
+      "display": ">1,900",
+      "raw": 1900,
+      "label": "Iran: all reported deaths",
+      "desc": "Broader humanitarian total reported by the International Federation of Red Cross and Red Crescent Societies. This includes all deaths reported across Iran."
+    },
+    "iran.confirmedCivilian": {
+      "display": "1,616",
+      "raw": 1616,
+      "label": "Of which: confirmed civilian deaths",
+      "desc": "Counted within the total reported deaths. Human rights monitor HRANA has verified these individuals as civilians killed in Iran. The difference (284 deaths) means their status is still being classified."
+    },
+    "iran.children": {
+      "display": "244+",
+      "raw": 244,
+      "label": "Of which: children",
+      "desc": "Counted within the confirmed civilian deaths. HRANA identified these as children among the verified civilian casualties. This is the most specific and heavily verified figure on this page."
+    }
+  }
+}

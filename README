@@ -1,0 +1,203 @@
+# Human Cost Tracker — U.S.–Iran War
+
+A self-updating casualty tracker published via GitHub Pages. Numbers live in JSON files; a GitHub Actions workflow checks sources daily and keeps the page current without touching the HTML.
+
+---
+
+## Repository layout
+
+```
+.
+├── .github/
+│   └── workflows/
+│       └── update-data.yml      # daily cron + manual trigger
+├── data/
+│   ├── casualties.json          # all numbers (source of truth)
+│   └── sources.json             # source metadata
+├── docs/
+│   ├── index.html               # the tracker page
+│   ├── data/                    # ← auto-copied here by the update script
+│   │   ├── casualties.json
+│   │   └── sources.json
+│   └── assets/
+│       └── js/
+│           └── data-loader.js   # fetches JSON, populates data-* elements
+├── scripts/
+│   └── fetch-and-update.js      # Node update script
+└── package.json
+```
+
+---
+
+## GitHub Pages setup
+
+1. Push this repo to GitHub.
+2. Go to **Settings → Pages**.
+3. Under **Source**, choose **Deploy from a branch**.
+4. Set branch to `main` and folder to `/docs`.
+5. Click **Save**.
+
+Your tracker will be live at `https://<you>.github.io/<repo>/` within a minute or two.
+
+> **Why `/docs`?** GitHub Pages serves everything inside `docs/` as the web root. The update script copies `data/*.json` into `docs/data/` automatically, so the page can fetch them over HTTP.
+
+---
+
+## How the data-attribute system works
+
+The HTML uses three custom attributes. The loader (`docs/assets/js/data-loader.js`) fetches `docs/data/casualties.json` and `docs/data/sources.json` on page load and populates every matching element.
+
+### `data-metric="<key>"`
+
+Replaces the element's text content with `metrics[key].display` from `casualties.json`.
+
+```html
+<div class="metric-number" data-metric="iran.reportedDeaths">&gt;1,900</div>
+```
+
+Keys follow the pattern `<region>.<stat>`, e.g. `iran.reportedDeaths`, `us.militaryWounded`.
+
+### `data-metric-source="<key>"`
+
+Populates with `"<source> · <date>"` from the same metrics entry.
+
+```html
+<div class="metric-source" data-metric-source="iran.reportedDeaths">IFRC via Reuters · Apr 2</div>
+```
+
+### `data-bar="<key>"`
+
+Updates the animated bar's `--fill-width` CSS variable, inner span text, and `.bar-meta` copy.
+
+```html
+<div class="bar-fill" style="--fill-width: 76%;" data-bar="iran.reportedDeaths"><span>&gt;1,900</span></div>
+```
+
+### `data-tree="<key>"`
+
+Updates `.tree-label`, `.tree-number`, and `.tree-desc` inside the tree card.
+
+```html
+<div class="tree-card level-0" data-tree="iran.total">
+  <div class="tree-label">…</div>
+  <div class="tree-number">&gt;1,900</div>
+  <div class="tree-desc">…</div>
+</div>
+```
+
+### `data-source-id="<id>"`
+
+Matches against `sources.json` and updates role, title, date, description, and link href.
+
+```html
+<div class="source-card" data-source-id="reuters-roundup">…</div>
+```
+
+> **Graceful fallback:** If the JSON fetch fails (e.g. opening the HTML as a local file), the loader logs a warning and the page displays the static values already baked into the HTML.
+
+---
+
+## Updating numbers
+
+### Option A — Manual update via GitHub Actions UI
+
+1. Go to **Actions → Update casualty data → Run workflow**.
+2. In the `set_flags` input, enter space-separated key=value pairs:
+
+   ```
+   metrics.iran.reportedDeaths.raw=2100 metrics.iran.reportedDeaths.display=>2,100
+   ```
+
+3. Click **Run workflow**. The action updates `casualties.json`, validates it, commits, and pushes.
+
+### Option B — Local update
+
+```bash
+# Install (no external deps — uses Node built-ins only)
+npm install
+
+# Set one or more values
+node scripts/fetch-and-update.js \
+  --set metrics.iran.reportedDeaths.raw=2100 \
+  --set metrics.iran.reportedDeaths.display=">2,100"
+
+# Validate without writing
+node scripts/fetch-and-update.js --validate
+
+# Check that source URLs are reachable
+node scripts/fetch-and-update.js --check-only
+```
+
+Then commit and push. GitHub Pages will redeploy automatically.
+
+### Option C — Edit JSON directly
+
+Edit `data/casualties.json`, run `node scripts/fetch-and-update.js --validate` to confirm consistency, then commit and push. The workflow will sync `docs/data/` on the next run.
+
+---
+
+## Automated daily check
+
+`.github/workflows/update-data.yml` runs every day at 08:00 UTC. It:
+
+1. Pings each source URL with a HEAD request to check reachability.
+2. Stamps `lastUpdated` and `conflictDays` in `casualties.json`.
+3. Copies JSON into `docs/data/`.
+4. Commits and pushes if anything changed.
+
+The workflow **does not automatically scrape new numbers** — that would require source-specific parsers that break whenever the sites change. Instead it keeps the data file fresh and flags which sources to check manually.
+
+---
+
+## `casualties.json` schema
+
+```jsonc
+{
+  "lastUpdated": "YYYY-MM-DD",        // set automatically by the update script
+  "conflictStart": "YYYY-MM-DD",      // set once, used to compute conflictDays
+  "conflictDays": 39,                 // computed automatically
+
+  "metrics": {
+    "<region>.<stat>": {
+      "display": ">1,900",            // human-readable string shown on page
+      "raw": 1900,                    // integer for logic checks
+      "source": "IFRC via Reuters",   // source name shown in metric-source
+      "date": "Apr 2"                 // date shown in metric-source
+    }
+  },
+
+  "bars": {
+    "<region>.<stat>": {
+      "fillPct": 76,                  // percentage width (0–100)
+      "display": ">1,900",            // text shown inside / beside bar
+      "meta": "Scale: 0 to 2,500…",  // shown in .bar-meta
+      "color": "red",                 // "red" or "amber"
+      "scaleMax": 2500                // reference only (for recalculating fillPct)
+    }
+  },
+
+  "tree": {
+    "<region>.<stat>": {
+      "display": ">1,900",
+      "raw": 1900,
+      "label": "Iran: all reported deaths",
+      "desc": "…"
+    }
+  }
+}
+```
+
+---
+
+## Adding a new region or metric
+
+1. Add an entry to `data/casualties.json` under `metrics` (and `bars` / `tree` if needed).
+2. Add a corresponding `data-metric="<key>"` attribute to the HTML element.
+3. Run `node scripts/fetch-and-update.js --validate` to check consistency.
+4. Commit and push.
+
+---
+
+## License
+
+Data is sourced from Reuters, IFRC, and HRANA and is reproduced here for public-interest journalism purposes. The code is released under MIT.

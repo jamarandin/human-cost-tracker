@@ -1,0 +1,42 @@
+name: Check for Data Updates
+
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Run data check
+        run: node scripts/fetch-and-update.js
+      
+      - name: Check for changes
+        id: verify
+        run: |
+          if git diff --quiet data/casualties.json; then
+            echo "No changes"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Commit changes (if any)
+        if: steps.verify.outputs.changed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "Data Update Bot"
+          git add data/casualties.json
+          git commit -m "Auto-update: Casualty data [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+          git push
